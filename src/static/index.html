@@ -8,9 +8,42 @@
   </head>
   <body>
     <header>
-      <h1>Mergington High School</h1>
-      <h2>Extracurricular Activities</h2>
+      <div class="header-content">
+        <div>
+          <h1>Mergington High School</h1>
+          <h2>Extracurricular Activities</h2>
+        </div>
+        <div class="user-section">
+          <div id="user-info" class="hidden">
+            <span id="user-name"></span>
+            <button id="logout-btn" class="btn-secondary">Logout</button>
+          </div>
+          <button id="login-btn" class="btn-primary">
+            <span class="user-icon">👤</span> Teacher Login
+          </button>
+        </div>
+      </div>
     </header>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal hidden">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>Teacher Login</h3>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" required placeholder="Enter username" />
+          </div>
+          <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" required placeholder="Enter password" />
+          </div>
+          <button type="submit" class="btn-primary">Login</button>
+          <div id="login-error" class="error hidden"></div>
+        </form>
+      </div>
+    </div>
 
     <main>
       <section id="activities-container">
@@ -21,12 +54,13 @@
         </div>
       </section>
 
-      <section id="signup-container">
-        <h3>Sign Up for an Activity</h3>
+      <section id="signup-container" class="teacher-only hidden">
+        <h3>Sign Up Student for Activity</h3>
+        <p class="info-text">Teachers can register students for activities</p>
         <form id="signup-form">
           <div class="form-group">
             <label for="email">Student Email:</label>
-            <input type="email" id="email" required placeholder="your-email@mergington.edu" />
+            <input type="email" id="email" required placeholder="student@mergington.edu" />
           </div>
           <div class="form-group">
             <label for="activity">Select Activity:</label>
@@ -35,7 +69,7 @@
               <!-- Activity options will be loaded here -->
             </select>
           </div>
-          <button type="submit">Sign Up</button>
+          <button type="submit">Sign Up Student</button>
         </form>
         <div id="message" class="hidden"></div>
       </section>
