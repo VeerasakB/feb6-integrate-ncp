@@ -5,11 +5,15 @@ A super simple FastAPI application that allows students to view and sign up
 for extracurricular activities at Mergington High School.
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
+from pydantic import BaseModel
 import os
+import json
+import secrets
 from pathlib import Path
+from typing import Optional
 
 app = FastAPI(title="Mergington High School API",
               description="API for viewing and signing up for extracurricular activities")
@@ -18,6 +22,23 @@ app = FastAPI(title="Mergington High School API",
 current_dir = Path(__file__).parent
 app.mount("/static", StaticFiles(directory=os.path.join(Path(__file__).parent,
           "static")), name="static")
+
+# Session storage (in-memory)
+active_sessions = {}
+
+# Load teachers from JSON file
+def load_teachers():
+    teachers_file = Path(__file__).parent.parent / "teachers.json"
+    with open(teachers_file, 'r') as f:
+        data = json.load(f)
+        return {t['username']: t for t in data['teachers']}
+
+teachers = load_teachers()
+
+# Pydantic models
+class LoginRequest(BaseModel):
+    username: str
+    password: str
 
 # In-memory activity database
 activities = {
@@ -88,9 +109,71 @@ def get_activities():
     return activities
 
 
+@app.post("/login")
+def login(credentials: LoginRequest, response: Response):
+    """Authenticate a teacher"""
+    username = credentials.username
+    password = credentials.password
+    
+    # Check if teacher exists and password matches
+    if username in teachers and teachers[username]['password'] == password:
+        # Generate session token
+        session_token = secrets.token_hex(32)
+        active_sessions[session_token] = {
+            'username': username,
+            'name': teachers[username]['name']
+        }
+        
+        return {
+            "success": True,
+            "token": session_token,
+            "name": teachers[username]['name']
+        }
+    else:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+
+
+@app.post("/logout")
+def logout(authorization: Optional[str] = Header(None)):
+    """Logout a teacher"""
+    if authorization and authorization.startswith("Bearer "):
+        token = authorization.replace("Bearer ", "")
+        if token in active_sessions:
+            del active_sessions[token]
+    return {"success": True}
+
+
+@app.get("/check-auth")
+def check_auth(authorization: Optional[str] = Header(None)):
+    """Check if current session is authenticated"""
+    if authorization and authorization.startswith("Bearer "):
+        token = authorization.replace("Bearer ", "")
+        if token in active_sessions:
+            return {
+                "authenticated": True,
+                "name": active_sessions[token]['name']
+            }
+    return {"authenticated": False}
+
+
+def verify_teacher_auth(authorization: Optional[str] = Header(None)):
+    """Verify teacher authentication"""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Authentication required")
+    
+    token = authorization.replace("Bearer ", "")
+    if token not in active_sessions:
+        raise HTTPException(status_code=401, detail="Invalid or expired session")
+    
+    return active_sessions[token]
+
+
 @app.post("/activities/{activity_name}/signup")
-def signup_for_activity(activity_name: str, email: str):
-    """Sign up a student for an activity"""
+def signup_for_activity(activity_name: str, email: str, authorization: Optional[str] = Header(None)):
+    """Sign up a student for an activity (teachers only)"""
+    # Verify teacher authentication
+    verify_teacher_auth(authorization)
+    
     # Validate activity exists
     if activity_name not in activities:
         raise HTTPException(status_code=404, detail="Activity not found")
@@ -111,8 +194,11 @@ def signup_for_activity(activity_name: str, email: str):
 
 
 @app.delete("/activities/{activity_name}/unregister")
-def unregister_from_activity(activity_name: str, email: str):
-    """Unregister a student from an activity"""
+def unregister_from_activity(activity_name: str, email: str, authorization: Optional[str] = Header(None)):
+    """Unregister a student from an activity (teachers only)"""
+    # Verify teacher authentication
+    verify_teacher_auth(authorization)
+    
     # Validate activity exists
     if activity_name not in activities:
         raise HTTPException(status_code=404, detail="Activity not found")

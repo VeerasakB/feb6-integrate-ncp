@@ -16,12 +16,29 @@ body {
 }
 
 header {
-  text-align: center;
-  padding: 20px 0;
+  padding: 20px;
   margin-bottom: 30px;
   background-color: #1a237e;
   color: white;
   border-radius: 5px;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.header-content > div:first-child {
+  text-align: left;
+}
+
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 header h1 {
@@ -162,6 +179,130 @@ button {
 
 button:hover {
   background-color: #3949ab;
+}
+
+.btn-primary {
+  background-color: #1a237e;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary:hover {
+  background-color: #3949ab;
+}
+
+.btn-secondary {
+  background-color: #c62828;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: #e53935;
+}
+
+.user-icon {
+  font-size: 18px;
+}
+
+#user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#user-name {
+  font-size: 14px;
+  margin-right: 5px;
+}
+
+/* Modal styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal:not(.hidden) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background-color: #fefefe;
+  padding: 30px;
+  border: 1px solid #888;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  position: absolute;
+  right: 15px;
+  top: 10px;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+}
+
+#login-form {
+  margin-top: 20px;
+}
+
+#login-form .form-group {
+  margin-bottom: 15px;
+}
+
+#login-form button {
+  width: 100%;
+  margin-top: 10px;
+}
+
+#login-error {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.teacher-only {
+  display: none;
+}
+
+.info-text {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 15px;
+  font-style: italic;
 }
 
 .message {
